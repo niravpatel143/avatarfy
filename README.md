@@ -15,7 +15,6 @@ A comprehensive Laravel package for generating culturally-aware SVG avatars with
 
 ## Supported Countries
 
-- USA, India, China, UK, Germany, Japan, Brazil, Nigeria
 - Each country has specific:
   - Background color palettes
   - Skin tone preferences
@@ -24,7 +23,7 @@ A comprehensive Laravel package for generating culturally-aware SVG avatars with
 ## 🚀 Super Easy Installation
 
 ### Step 1: Install Package
-```bash
+```bashUK
 composer require avatarfy/avatarfy
 ```
 
