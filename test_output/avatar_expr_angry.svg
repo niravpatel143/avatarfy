@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg width='256' height='256' xmlns='http://www.w3.org/2000/svg'>
+  <rect width='100%' height='100%' fill='#F0F8FF' />
+  <rect x='88.625' y='88.625' width='78.75' height='78.75' rx='15' ry='15' fill='#FFDBAC' stroke='#000' stroke-width='2' />
+  <ellipse cx='113' cy='118' rx='8' ry='4' fill='white' stroke='#000' stroke-width='2' />
+  <ellipse cx='143' cy='118' rx='8' ry='4' fill='white' stroke='#000' stroke-width='2' />
+  <ellipse cx='113' cy='118' rx='4' ry='2' fill='#654321' />
+  <ellipse cx='143' cy='118' rx='4' ry='2' fill='#654321' />
+  <circle cx='115' cy='115' r='2' fill='white' />
+  <circle cx='145' cy='115' r='2' fill='white' />
+  <line x1='98' y1='109' x2='114' y2='101' stroke='#654321' stroke-width='5' />
+  <line x1='142' y1='101' x2='158' y2='109' stroke='#654321' stroke-width='5' />
+  <ellipse cx='128' cy='133' rx='5' ry='9' fill='#D4A574' stroke='#000' stroke-width='1' />
+  <ellipse cx='125' cy='137' rx='2' ry='3' fill='#C68642' />
+  <ellipse cx='131' cy='137' rx='2' ry='3' fill='#C68642' />
+  <ellipse cx='106' cy='145' rx='6' ry='4' fill='#FF69B4' fill-opacity='0.6' />
+  <ellipse cx='150' cy='145' rx='6' ry='4' fill='#FF69B4' fill-opacity='0.6' />
+  <path d='M 113 148 Q 128 140 143 148' stroke='#000' stroke-width='3' fill='none' />
+</svg>
