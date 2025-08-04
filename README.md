@@ -40,7 +40,6 @@ composer require avatarfy/avatarfy
 ### Step 2: Create Storage Directory
 ```bash
 php artisan storage:link
-mkdir -p storage/app/public/avatars
 ```
 
 ### Step 3: Start Using! (No config needed)
