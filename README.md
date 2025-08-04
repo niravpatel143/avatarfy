@@ -1,8 +1,9 @@
 # 🎨 Avatarfy - Laravel Avatar Generator
 
 A comprehensive Laravel package for generating culturally-aware SVG avatars with expressions, age groups, and customizable features. Create beautiful, diverse avatars instantly with zero external dependencies!
-https://github.com/niravpatel143/avatarfy/blob/main/test_output/avatar_adult1.svg
-## Features
+## 🖼️ Demo Avatar
+
+<img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_adult1.svg" alt="Demo Avatar" width="200"/>## Features
 
 - **Zero Dependencies**: Pure PHP implementation with no external libraries
 - **SVG-based**: Scalable vector graphics for crisp avatars at any size
