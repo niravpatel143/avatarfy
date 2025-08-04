@@ -1,13 +1,16 @@
 # 🎨 Avatarfy - Laravel Avatar Generator
 
 A comprehensive Laravel package for generating culturally-aware SVG avatars with expressions, age groups, and customizable features. Create beautiful, diverse avatars instantly with zero external dependencies!
-## 🖼️ Demo Avatar
+## 🖼️ Demo Avatars
 
-<img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_adult1.svg" alt="Demo Avatar" width="200"/>
-<img src="https://github.com/niravpatel143/avatarfy/blob/main/test_output/avatar_anna.svg" alt="Demo Avatar" width="200"/>
-<img src="https://github.com/niravpatel143/avatarfy/blob/main/test_output/avatar_bob.svg" alt="Demo Avatar" width="200"/>
-<img src="https://github.com/niravpatel143/avatarfy/blob/main/test_output/avatar_child1.svg" alt="Demo Avatar" width="200"/>
-
+<table>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_adult1.svg" width="120"/></td>
+    <td><img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_anna.svg" width="120"/></td>
+    <td><img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_bob.svg" width="120"/></td>
+    <td><img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_child1.svg" width="120"/></td>
+  </tr>
+</table>
 
 ## Features
 
