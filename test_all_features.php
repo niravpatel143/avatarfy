@@ -62,7 +62,7 @@ runTest("Simple Avatar Generation with Smart Defaults", function() use ($avatarS
 // === TEST 2: Email-Based Avatar Generation ===
 runTest("Email-Based Avatar Generation", function() use ($avatarService) {
     $emails = [
-        'john.doe@example.com',
+        'NiravGoriya',
         'sarah_smith@company.com',
         'mikejohnson@test.org',
         'anna@domain.co.uk'
