@@ -13,29 +13,87 @@ A comprehensive Laravel package for generating culturally-aware SVG avatars with
 <table>
   <tr>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_expr_happy.svg" width="80"/><br>
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_expr_happy.svg" width="80" style="transform: rotate(5deg);"/><br>
       <small><strong>Happy Expression</strong></small>
     </td>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_alice.svg" width="80"/><br>
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_alice.svg" width="80" style="transform: rotate(-8deg);"/><br>
       <small><strong>Female Avatar</strong></small>
     </td>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_country_Japan.svg" width="80"/><br>
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_country_Japan.svg" width="80" style="transform: rotate(12deg);"/><br>
       <small><strong>Japan Style</strong></small>
     </td>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_child1.svg" width="80"/><br>
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_child1.svg" width="80" style="transform: rotate(-15deg);"/><br>
       <small><strong>Child Age Group</strong></small>
     </td>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_NiravGoriya.svg" width="80"/><br>
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/avatar_NiravGoriya.svg" width="80" style="transform: rotate(7deg);"/><br>
       <small><strong>Email Avatar</strong></small>
     </td>
   </tr>
 </table>
 
 ### 🎯 **[→ Explore Full Gallery with All 38+ Avatars](./test_output/index.html)** 🎯
+
+### 🔄 Transform Showcase - Unique Rotations
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/custom_avatar_transform_rotate.svg" width="70" style="transform: rotate(25deg); border-radius: 10px;"/><br>
+      <small><strong>Rotated 25°</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/custom_avatar_combined_flip_rotate.svg" width="70" style="transform: rotate(-18deg) scale(1.1); border-radius: 15px;"/><br>
+      <small><strong>Flip + Rotate</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/custom_avatar_transform_clip.svg" width="70" style="transform: rotate(12deg); border-radius: 50%;"/><br>
+      <small><strong>Clipped Circle</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/custom_avatar_combined_all_transforms.svg" width="70" style="transform: rotate(-22deg) scale(0.95); border-radius: 20px;"/><br>
+      <small><strong>All Effects</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/custom_avatar_transform_scale.svg" width="70" style="transform: rotate(8deg) scale(1.05); border-radius: 12px;"/><br>
+      <small><strong>Scale + Rotate</strong></small>
+    </td>
+  </tr>
+</table>
+
+> **✨ NEW!** Each avatar can be uniquely rotated, scaled, flipped, and clipped for dynamic visual appeal!
+
+### 🎯 Identicon Gallery - Geometric Patterns
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_github_user_123.svg" width="70" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>GitHub Style</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_stackoverflow_456.svg" width="70" style="border-radius: 12px; transform: rotate(3deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>StackOverflow</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_reddit_789.svg" width="70" style="border-radius: 6px; transform: rotate(-5deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>Reddit Pattern</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_discord_abc.svg" width="70" style="border-radius: 50%; transform: rotate(7deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>Discord Circle</strong></small>
+    </td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_custom_size_test.svg" width="70" style="border-radius: 10px; transform: rotate(-2deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>Custom Size</strong></small>
+    </td>
+  </tr>
+</table>
+
+> **🎨 Identicons:** Perfect for GitHub-style geometric avatars - same seed always generates identical patterns!
 
 ## ✨ Features & Capabilities
 
