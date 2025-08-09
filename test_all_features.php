@@ -212,9 +212,9 @@ runTest("Seed-based Avatar Generation (Deterministic)", function() use ($avatarS
     }
 });
 
-// === TEST 11: Identicon Generation ===
-runTest("Identicon Generation (Geometric Patterns)", function() use ($avatarService) {
-    $seeds = ['github_user_123', 'stackoverflow_456', 'reddit_789', 'discord_abc'];
+// === TEST 11: Simple Grid Identicon Generation ===
+runTest("Simple Grid Identicon Generation (5x5 Grid Pattern)", function() use ($avatarService) {
+    $seeds = ['user123', 'alice_smith', 'john_doe', 'developer_01', 'designer99', 'github_user_123', 'stackoverflow_456', 'reddit_789', 'discord_abc'];
     $results = [];
     
     foreach ($seeds as $seed) {
@@ -222,11 +222,43 @@ runTest("Identicon Generation (Geometric Patterns)", function() use ($avatarServ
         $results[] = basename($result);
     }
     
-    // Test with custom size
-    $customSize = $avatarService->generateIdenticon('custom_size_test', ['size' => 128]);
-    $results[] = basename($customSize);
+    return "Created simple grid identicon avatars: " . implode(', ', $results);
+});
+
+// === TEST 11B: Identicon Different Sizes ===
+runTest("Identicon Different Sizes (128, 256, 512px)", function() use ($avatarService) {
+    $sizes = [128, 256, 512];
+    $results = [];
     
-    return "Created identicon avatars: " . implode(', ', $results);
+    foreach ($sizes as $size) {
+        $result = $avatarService->generateIdenticon("size_test_{$size}", ['size' => $size]);
+        $results[] = basename($result) . " ({$size}px)";
+    }
+    
+    return "Created different sized identicons: " . implode(', ', $results);
+});
+
+// === TEST 11C: Identicon Deterministic Test ===
+runTest("Identicon Deterministic Generation (Same Seed = Same Pattern)", function() use ($avatarService) {
+    $seed = 'deterministic_identicon_test';
+    
+    // Generate same seed multiple times
+    $result1 = $avatarService->generateIdenticon($seed);
+    $result2 = $avatarService->generateIdenticon($seed);
+    $result3 = $avatarService->generateIdenticon($seed);
+    
+    // Read and compare files
+    $content1 = file_get_contents($result1);
+    $content2 = file_get_contents($result2);
+    $content3 = file_get_contents($result3);
+    
+    if ($content1 === $content2 && $content2 === $content3) {
+        // Count colored squares to verify pattern
+        $squareCount = substr_count($content1, '<rect');
+        return "✅ Deterministic identicon generation verified - same seed produces identical pattern with {$squareCount} elements";
+    } else {
+        return "❌ Deterministic identicon generation failed - same seed produced different patterns";
+    }
 });
 
 // === TEST 12: Batch Avatar Generation ===

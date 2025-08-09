@@ -1,11 +1,10 @@
-# 🎨 Avatarfy - Laravel Avatar Generator
+# Avatarfy - SVG Avatar Generator
 
-[![Avatar Gallery](https://img.shields.io/badge/🎨_Live-Avatar_Gallery-brightgreen?style=for-the-badge)](./test_output/index.html)
-[![Laravel Package](https://img.shields.io/badge/Laravel-Package-red?style=for-the-badge&logo=laravel)](https://laravel.com)
-[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue?style=for-the-badge&logo=php)](https://php.net)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
+[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/Tests-21%2F21-brightgreen.svg)](#testing)
 
-A comprehensive Laravel package for generating culturally-aware SVG avatars with expressions, age groups, and customizable features. Create beautiful, diverse avatars instantly with zero external dependencies!
+A comprehensive PHP SVG avatar generator that creates diverse, customizable avatars and simple grid identicons with deterministic generation based on seeds.
 
 ## 🚀 **[View Complete Avatar Gallery](./test_output/index.html)** - 38+ Live Examples!
 
@@ -66,29 +65,29 @@ A comprehensive Laravel package for generating culturally-aware SVG avatars with
 
 > **✨ NEW!** Each avatar can be uniquely rotated, scaled, flipped, and clipped for dynamic visual appeal!
 
-### 🎯 Identicon Gallery - Geometric Patterns
+### 🎯 Identicon Gallery - Simple Grid Patterns
 
 <table>
   <tr>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_github_user_123.svg" width="70" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <img src="./test_output/identicon_user123.svg" width="70" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>user123</strong></small>
+    </td>
+    <td align="center">
+      <img src="./test_output/identicon_alice_smith.svg" width="70" style="border-radius: 12px; transform: rotate(3deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>alice_smith</strong></small>
+    </td>
+    <td align="center">
+      <img src="./test_output/identicon_john_doe.svg" width="70" style="border-radius: 6px; transform: rotate(-5deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>john_doe</strong></small>
+    </td>
+    <td align="center">
+      <img src="./test_output/identicon_github_user_123.svg" width="70" style="border-radius: 50%; transform: rotate(7deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
       <small><strong>GitHub Style</strong></small>
     </td>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_stackoverflow_456.svg" width="70" style="border-radius: 12px; transform: rotate(3deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
-      <small><strong>StackOverflow</strong></small>
-    </td>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_reddit_789.svg" width="70" style="border-radius: 6px; transform: rotate(-5deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
-      <small><strong>Reddit Pattern</strong></small>
-    </td>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_discord_abc.svg" width="70" style="border-radius: 50%; transform: rotate(7deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
-      <small><strong>Discord Circle</strong></small>
-    </td>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/niravpatel143/avatarfy/main/test_output/identicon_custom_size_test.svg" width="70" style="border-radius: 10px; transform: rotate(-2deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
-      <small><strong>Custom Size</strong></small>
+      <img src="./test_output/identicon_developer_01.svg" width="70" style="border-radius: 10px; transform: rotate(-2deg); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/><br>
+      <small><strong>developer_01</strong></small>
     </td>
   </tr>
 </table>

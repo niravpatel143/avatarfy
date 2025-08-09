@@ -4,8 +4,8 @@
   <rect x='87.5' y='87.5' width='81' height='81' rx='15' ry='15' fill='#F1C27D' stroke='#000' stroke-width='2' />
   <ellipse cx='113' cy='118' rx='8' ry='6' fill='white' stroke='#000' stroke-width='2' />
   <ellipse cx='143' cy='118' rx='8' ry='6' fill='white' stroke='#000' stroke-width='2' />
-  <circle cx='113' cy='118' r='4' fill='#8B4513' />
-  <circle cx='143' cy='118' r='4' fill='#8B4513' />
+  <circle cx='113' cy='118' r='4' fill='#654321' />
+  <circle cx='143' cy='118' r='4' fill='#654321' />
   <circle cx='115' cy='115' r='2' fill='white' />
   <circle cx='145' cy='115' r='2' fill='white' />
   <line x1='98' y1='103' x2='114' y2='103' stroke='#654321' stroke-width='4' />

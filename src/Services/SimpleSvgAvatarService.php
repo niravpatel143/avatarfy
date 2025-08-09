@@ -417,6 +417,265 @@ class SimpleSvgAvatarService
      */
     public function generateIdenticon($seed, array $options = [])
     {
+        // Use enhanced identicon if method exists, otherwise fallback to basic
+        if (method_exists($this, 'generateEnhancedIdenticon')) {
+            return $this->generateEnhancedIdenticon($seed, $options);
+        }
+        
+        return $this->generateBasicIdenticon($seed, $options);
+    }
+    
+    /**
+     * Generate Simple Grid Identicon like Screenshot_9
+     */
+    public function generateEnhancedIdenticon($seed, array $options = [])
+    {
+        return $this->generateSimpleGridIdenticon($seed, $options);
+    }
+    
+    /**
+     * Generate Simple Grid Identicon - Clean 5x5 grid like Screenshot_9
+     */
+    protected function generateSimpleGridIdenticon($seed, $options = [])
+    {
+        $this->seed = $seed;
+        $width = $options['size'] ?? $this->config['width'] ?? 256;
+        
+        // Simple 5x5 grid
+        $gridSize = 5;
+        $cellSize = $width / $gridSize;
+        
+        $svg = "<?xml version='1.0' encoding='UTF-8'?>\n";
+        $svg .= "<svg width='{$width}' height='{$width}' xmlns='http://www.w3.org/2000/svg'>\n";
+        
+        // Simple solid background
+        $bgColor = '#f5f5f5';
+        $svg .= "  <rect width='100%' height='100%' fill='{$bgColor}' />\n";
+        
+        // Generate main color for squares
+        $mainColor = $this->generateSimpleColor($seed);
+        
+        // Generate simple pattern - only half the grid (for symmetry)
+        $pattern = [];
+        for ($i = 0; $i < 15; $i++) { // 5 rows * 3 cols (2 left + 1 middle)
+            $pattern[] = (abs(crc32($seed . $i)) % 2) === 1;
+        }
+        
+        // Draw the pattern with symmetry
+        for ($row = 0; $row < $gridSize; $row++) {
+            for ($col = 0; $col < $gridSize; $col++) {
+                $shouldFill = false;
+                
+                if ($col < 2) {
+                    // Left side
+                    $shouldFill = $pattern[$row * 2 + $col];
+                } elseif ($col === 2) {
+                    // Middle column
+                    $shouldFill = $pattern[10 + $row];
+                } else {
+                    // Right side (mirror left)
+                    $shouldFill = $pattern[$row * 2 + (4 - $col)];
+                }
+                
+                if ($shouldFill) {
+                    $x = $col * $cellSize;
+                    $y = $row * $cellSize;
+                    $svg .= "  <rect x='{$x}' y='{$y}' width='{$cellSize}' height='{$cellSize}' fill='{$mainColor}' />\n";
+                }
+            }
+        }
+        
+        $svg .= "</svg>";
+        
+        // Save simple identicon
+        $filename = "identicon_{$seed}.svg";
+        $outputPath = $this->config['storage_path'] . '/' . $filename;
+        file_put_contents($outputPath, $svg);
+        
+        return $outputPath;
+    }
+    
+    /**
+     * Generate custom color palette for geometric avatars
+     */
+    protected function generateCustomColorPalette($seed)
+    {
+        $hash = abs(crc32($seed));
+        $hue = $hash % 360;
+        
+        // Create harmonious color scheme
+        $colors = [
+            'primary' => $this->hueToHex($hue, 70, 60),
+            'secondary' => $this->hueToHex(($hue + 60) % 360, 65, 55),
+            'accent' => $this->hueToHex(($hue + 120) % 360, 75, 65),
+            'complement' => $this->hueToHex(($hue + 180) % 360, 60, 50),
+            'light' => $this->hueToHex($hue, 40, 85),
+            'dark' => $this->hueToHex($hue, 80, 30)
+        ];
+        
+        return $colors;
+    }
+    
+    /**
+     * Create custom background
+     */
+    protected function createCustomBackground($colors, $width)
+    {
+        $gradientId = 'customBg' . substr(md5(serialize($colors)), 0, 8);
+        
+        $svg = "  <defs>\n";
+        $svg .= "    <linearGradient id='{$gradientId}' x1='0%' y1='0%' x2='100%' y2='100%'>\n";
+        $svg .= "      <stop offset='0%' style='stop-color:{$colors['light']};stop-opacity:1' />\n";
+        $svg .= "      <stop offset='100%' style='stop-color:{$colors['primary']};stop-opacity:0.8' />\n";
+        $svg .= "    </linearGradient>\n";
+        $svg .= "  </defs>\n";
+        $svg .= "  <rect width='100%' height='100%' fill='url(#{$gradientId})' />\n";
+        
+        return $svg;
+    }
+    
+    /**
+     * Generate layered geometric pattern
+     */
+    protected function generateLayeredGeometry($seed, $colors, $width)
+    {
+        $svg = "";
+        $centerX = $width / 2;
+        $centerY = $width / 2;
+        $hash = abs(crc32($seed));
+        
+        // Layer 1: Outer ring segments
+        $segments = 8;
+        $outerRadius = $width * 0.4;
+        $innerRadius = $width * 0.3;
+        
+        for ($i = 0; $i < $segments; $i++) {
+            if ((abs(crc32($seed . 'outer' . $i)) % 3) > 0) {
+                $angle1 = ($i * 360 / $segments) - 22.5;
+                $angle2 = (($i + 1) * 360 / $segments) - 22.5;
+                $svg .= $this->drawArcSegment($centerX, $centerY, $innerRadius, $outerRadius, $angle1, $angle2, $colors['primary']);
+            }
+        }
+        
+        // Layer 2: Middle geometric shapes
+        $middleRadius = $width * 0.25;
+        $shapes = 6;
+        for ($i = 0; $i < $shapes; $i++) {
+            if ((abs(crc32($seed . 'middle' . $i)) % 2) === 1) {
+                $angle = $i * 60;
+                $x = $centerX + cos(deg2rad($angle)) * $middleRadius;
+                $y = $centerY + sin(deg2rad($angle)) * $middleRadius;
+                $svg .= $this->drawCustomShape($x, $y, $width * 0.08, $i % 3, $colors['secondary']);
+            }
+        }
+        
+        // Layer 3: Inner core pattern
+        $coreRadius = $width * 0.15;
+        $corePattern = abs(crc32($seed . 'core')) % 4;
+        
+        switch ($corePattern) {
+            case 0:
+                $svg .= "  <circle cx='{$centerX}' cy='{$centerY}' r='{$coreRadius}' fill='{$colors['accent']}' />\n";
+                break;
+            case 1:
+                $svg .= $this->drawStar($centerX, $centerY, $coreRadius, 6, $colors['accent']);
+                break;
+            case 2:
+                $svg .= $this->drawPolygonShape($centerX, $centerY, $coreRadius, 8, 0, $colors['accent']);
+                break;
+            case 3:
+                $svg .= $this->drawConcentricRings($centerX, $centerY, $coreRadius, 3, $colors['accent']);
+                break;
+        }
+        
+        return $svg;
+    }
+    
+    /**
+     * Generate radial geometric pattern
+     */
+    protected function generateRadialGeometry($seed, $colors, $width)
+    {
+        $svg = "";
+        $centerX = $width / 2;
+        $centerY = $width / 2;
+        
+        // Create radiating pattern
+        $rays = 12;
+        $maxRadius = $width * 0.45;
+        
+        for ($i = 0; $i < $rays; $i++) {
+            if ((abs(crc32($seed . 'ray' . $i)) % 3) !== 0) {
+                $angle = $i * 30;
+                $length = $maxRadius * (0.7 + (abs(crc32($seed . 'len' . $i)) % 31) / 100);
+                $svg .= $this->drawRay($centerX, $centerY, $angle, $length, $colors['primary']);
+            }
+        }
+        
+        // Add central ornament
+        $svg .= $this->drawCustomOrnament($centerX, $centerY, $width * 0.12, $colors['accent']);
+        
+        return $svg;
+    }
+    
+    /**
+     * Generate tribal-style geometric pattern
+     */
+    protected function generateTribalGeometry($seed, $colors, $width)
+    {
+        $svg = "";
+        $centerX = $width / 2;
+        $centerY = $width / 2;
+        
+        // Create tribal-style symmetric pattern
+        $elements = 8;
+        $radius = $width * 0.35;
+        
+        for ($i = 0; $i < $elements; $i++) {
+            if ((abs(crc32($seed . 'tribal' . $i)) % 2) === 1) {
+                $angle = $i * 45;
+                $x = $centerX + cos(deg2rad($angle)) * $radius;
+                $y = $centerY + sin(deg2rad($angle)) * $radius;
+                $svg .= $this->drawTribalElement($x, $y, $angle, $width * 0.06, $colors['secondary']);
+            }
+        }
+        
+        // Central tribal symbol
+        $svg .= $this->drawTribalCenter($centerX, $centerY, $width * 0.2, $colors['dark']);
+        
+        return $svg;
+    }
+    
+    /**
+     * Generate crystalline geometric pattern
+     */
+    protected function generateCrystallineGeometry($seed, $colors, $width)
+    {
+        $svg = "";
+        $centerX = $width / 2;
+        $centerY = $width / 2;
+        
+        // Create crystal-like faceted pattern
+        $facets = 16;
+        $baseRadius = $width * 0.4;
+        
+        for ($i = 0; $i < $facets; $i++) {
+            if ((abs(crc32($seed . 'facet' . $i)) % 3) > 0) {
+                $angle = $i * 22.5;
+                $innerR = $baseRadius * 0.6;
+                $outerR = $baseRadius * (0.8 + (abs(crc32($seed . 'crystal' . $i)) % 21) / 100);
+                $svg .= $this->drawCrystalFacet($centerX, $centerY, $innerR, $outerR, $angle, $colors['complement']);
+            }
+        }
+        
+        return $svg;
+    }
+    
+    /**
+     * Generate Basic Identicon - Original implementation as fallback
+     */
+    protected function generateBasicIdenticon($seed, array $options = [])
+    {
         $this->seed = $seed;
         $hash = crc32($seed);
         
@@ -424,7 +683,7 @@ class SimpleSvgAvatarService
         $height = $width; // Force square
         
         $svg = "<?xml version='1.0' encoding='UTF-8'?>\n";
-        $svg .= "<svg width='{$width}' height='{$height}' xmlns='http://www.w3.org/2000/svg'>\n";
+        $svg .= "<svg width='{$width}' height='{$width}' xmlns='http://www.w3.org/2000/svg'>\n";
         
         // Background
         $bgColor = $this->generateSeededColor($seed . 'bg');
@@ -1378,6 +1637,21 @@ class SimpleSvgAvatarService
     }
     
     /**
+     * Generate simple color for basic identicons
+     */
+    protected function generateSimpleColor($seed)
+    {
+        // Simple, pleasant colors for basic identicons
+        $colors = [
+            '#3498db', '#e74c3c', '#2ecc71', '#f39c12', 
+            '#9b59b6', '#1abc9c', '#34495e', '#e67e22',
+            '#f1c40f', '#c0392b', '#8e44ad', '#16a085'
+        ];
+        
+        return $this->generateSeededValue($seed, $colors);
+    }
+    
+    /**
      * Apply transforms to SVG based on config and options
      */
     protected function applyTransforms($svg, $transforms = null)
@@ -1502,4 +1776,297 @@ class SimpleSvgAvatarService
         
         return $svg;
     }
+    
+    // === CUSTOM GEOMETRIC DRAWING HELPER METHODS ===
+    
+    /**
+     * Convert HSL to Hex color
+     */
+    protected function hueToHex($h, $s, $l)
+    {
+        $h = $h / 360;
+        $s = $s / 100;
+        $l = $l / 100;
+        
+        if ($s == 0) {
+            $r = $g = $b = $l;
+        } else {
+            $hue2rgb = function($p, $q, $t) {
+                if ($t < 0) $t += 1;
+                if ($t > 1) $t -= 1;
+                if ($t < 1/6) return $p + ($q - $p) * 6 * $t;
+                if ($t < 1/2) return $q;
+                if ($t < 2/3) return $p + ($q - $p) * (2/3 - $t) * 6;
+                return $p;
+            };
+            
+            $q = $l < 0.5 ? $l * (1 + $s) : $l + $s - $l * $s;
+            $p = 2 * $l - $q;
+            $r = $hue2rgb($p, $q, $h + 1/3);
+            $g = $hue2rgb($p, $q, $h);
+            $b = $hue2rgb($p, $q, $h - 1/3);
+        }
+        
+        $r = round($r * 255);
+        $g = round($g * 255);
+        $b = round($b * 255);
+        
+        return sprintf("#%02x%02x%02x", $r, $g, $b);
+    }
+    
+    /**
+     * Draw arc segment for layered geometry
+     */
+    protected function drawArcSegment($centerX, $centerY, $innerRadius, $outerRadius, $angle1, $angle2, $color)
+    {
+        // Convert angles to radians
+        $rad1 = deg2rad($angle1);
+        $rad2 = deg2rad($angle2);
+        
+        // Calculate points
+        $x1Inner = $centerX + cos($rad1) * $innerRadius;
+        $y1Inner = $centerY + sin($rad1) * $innerRadius;
+        $x1Outer = $centerX + cos($rad1) * $outerRadius;
+        $y1Outer = $centerY + sin($rad1) * $outerRadius;
+        
+        $x2Inner = $centerX + cos($rad2) * $innerRadius;
+        $y2Inner = $centerY + sin($rad2) * $innerRadius;
+        $x2Outer = $centerX + cos($rad2) * $outerRadius;
+        $y2Outer = $centerY + sin($rad2) * $outerRadius;
+        
+        // Large arc flag
+        $largeArc = abs($angle2 - $angle1) > 180 ? 1 : 0;
+        
+        $svg = "  <path d='M {$x1Inner},{$y1Inner} ";
+        $svg .= "L {$x1Outer},{$y1Outer} ";
+        $svg .= "A {$outerRadius},{$outerRadius} 0 {$largeArc},1 {$x2Outer},{$y2Outer} ";
+        $svg .= "L {$x2Inner},{$y2Inner} ";
+        $svg .= "A {$innerRadius},{$innerRadius} 0 {$largeArc},0 {$x1Inner},{$y1Inner} Z' ";
+        $svg .= "fill='{$color}' opacity='0.8' />\n";
+        
+        return $svg;
+    }
+    
+    /**
+     * Draw custom shapes for geometric patterns
+     */
+    protected function drawCustomShape($x, $y, $size, $shapeType, $color)
+    {
+        switch ($shapeType) {
+            case 0: // Diamond
+                $points = [
+                    [$x, $y - $size],
+                    [$x + $size, $y],
+                    [$x, $y + $size],
+                    [$x - $size, $y]
+                ];
+                $pointsStr = implode(' ', array_map(function($p) { return $p[0] . ',' . $p[1]; }, $points));
+                return "  <polygon points='{$pointsStr}' fill='{$color}' opacity='0.9' />\n";
+                
+            case 1: // Triangle
+                $points = [
+                    [$x, $y - $size],
+                    [$x + $size * 0.866, $y + $size * 0.5],
+                    [$x - $size * 0.866, $y + $size * 0.5]
+                ];
+                $pointsStr = implode(' ', array_map(function($p) { return $p[0] . ',' . $p[1]; }, $points));
+                return "  <polygon points='{$pointsStr}' fill='{$color}' opacity='0.9' />\n";
+                
+            case 2: // Square
+                $x1 = $x - $size;
+                $y1 = $y - $size;
+                return "  <rect x='{$x1}' y='{$y1}' width='" . ($size * 2) . "' height='" . ($size * 2) . "' fill='{$color}' opacity='0.9' rx='3' />\n";
+                
+            default: // Circle
+                return "  <circle cx='{$x}' cy='{$y}' r='{$size}' fill='{$color}' opacity='0.9' />\n";
+        }
+    }
+    
+    /**
+     * Draw star shape
+     */
+    protected function drawStar($centerX, $centerY, $radius, $points, $color)
+    {
+        $svg = "";
+        $outerRadius = $radius;
+        $innerRadius = $radius * 0.4;
+        $angle = 360 / $points;
+        
+        $pathPoints = [];
+        for ($i = 0; $i < $points * 2; $i++) {
+            $currentRadius = ($i % 2 === 0) ? $outerRadius : $innerRadius;
+            $currentAngle = ($i * $angle / 2) - 90;
+            $x = $centerX + cos(deg2rad($currentAngle)) * $currentRadius;
+            $y = $centerY + sin(deg2rad($currentAngle)) * $currentRadius;
+            $pathPoints[] = $x . ',' . $y;
+        }
+        
+        $pointsStr = implode(' ', $pathPoints);
+        return "  <polygon points='{$pointsStr}' fill='{$color}' />\n";
+    }
+    
+    /**
+     * Draw polygon shape
+     */
+    protected function drawPolygonShape($centerX, $centerY, $radius, $sides, $rotation, $color)
+    {
+        $points = [];
+        $angleStep = 360 / $sides;
+        
+        for ($i = 0; $i < $sides; $i++) {
+            $angle = deg2rad($rotation + ($i * $angleStep));
+            $x = $centerX + ($radius * cos($angle));
+            $y = $centerY + ($radius * sin($angle));
+            $points[] = "{$x},{$y}";
+        }
+        
+        $pointsStr = implode(' ', $points);
+        return "  <polygon points='{$pointsStr}' fill='{$color}' />\n";
+    }
+    
+    /**
+     * Draw concentric rings
+     */
+    protected function drawConcentricRings($centerX, $centerY, $maxRadius, $rings, $color)
+    {
+        $svg = "";
+        for ($i = 0; $i < $rings; $i++) {
+            $radius = $maxRadius * (($i + 1) / $rings);
+            $opacity = 1 - ($i * 0.3);
+            $svg .= "  <circle cx='{$centerX}' cy='{$centerY}' r='{$radius}' fill='none' stroke='{$color}' stroke-width='3' opacity='{$opacity}' />\n";
+        }
+        return $svg;
+    }
+    
+    /**
+     * Draw ray for radial geometry
+     */
+    protected function drawRay($centerX, $centerY, $angle, $length, $color)
+    {
+        $radAngle = deg2rad($angle);
+        $endX = $centerX + cos($radAngle) * $length;
+        $endY = $centerY + sin($radAngle) * $length;
+        
+        // Create tapered ray
+        $width = $length * 0.1;
+        $sideAngle1 = $radAngle + deg2rad(5);
+        $sideAngle2 = $radAngle - deg2rad(5);
+        
+        $side1X = $centerX + cos($sideAngle1) * $width;
+        $side1Y = $centerY + sin($sideAngle1) * $width;
+        $side2X = $centerX + cos($sideAngle2) * $width;
+        $side2Y = $centerY + sin($sideAngle2) * $width;
+        
+        $points = "{$side1X},{$side1Y} {$endX},{$endY} {$side2X},{$side2Y}";
+        return "  <polygon points='{$points}' fill='{$color}' opacity='0.8' />\n";
+    }
+    
+    /**
+     * Draw custom ornament for center
+     */
+    protected function drawCustomOrnament($centerX, $centerY, $size, $color)
+    {
+        $svg = "";
+        
+        // Central circle
+        $svg .= "  <circle cx='{$centerX}' cy='{$centerY}' r='{$size}' fill='{$color}' />\n";
+        
+        // Decorative petals around center
+        $petalSize = $size * 0.6;
+        for ($i = 0; $i < 8; $i++) {
+            $angle = $i * 45;
+            $radAngle = deg2rad($angle);
+            $petalX = $centerX + cos($radAngle) * $size * 0.8;
+            $petalY = $centerY + sin($radAngle) * $size * 0.8;
+            
+            $svg .= "  <circle cx='{$petalX}' cy='{$petalY}' r='{$petalSize}' fill='{$color}' opacity='0.7' />\n";
+        }
+        
+        return $svg;
+    }
+    
+    /**
+     * Draw tribal element
+     */
+    protected function drawTribalElement($x, $y, $angle, $size, $color)
+    {
+        // Create tribal-style angular shapes
+        $svg = "";
+        $radAngle = deg2rad($angle);
+        
+        // Main triangle pointing outward
+        $tipX = $x + cos($radAngle) * $size * 2;
+        $tipY = $y + sin($radAngle) * $size * 2;
+        
+        $leftAngle = $radAngle + deg2rad(25);
+        $rightAngle = $radAngle - deg2rad(25);
+        
+        $leftX = $x + cos($leftAngle) * $size;
+        $leftY = $y + sin($leftAngle) * $size;
+        $rightX = $x + cos($rightAngle) * $size;
+        $rightY = $y + sin($rightAngle) * $size;
+        
+        $points = "{$tipX},{$tipY} {$leftX},{$leftY} {$rightX},{$rightY}";
+        $svg .= "  <polygon points='{$points}' fill='{$color}' opacity='0.9' />\n";
+        
+        return $svg;
+    }
+    
+    /**
+     * Draw tribal center symbol
+     */
+    protected function drawTribalCenter($centerX, $centerY, $size, $color)
+    {
+        $svg = "";
+        
+        // Cross pattern in center
+        $armLength = $size;
+        $armWidth = $size * 0.2;
+        
+        // Horizontal arm
+        $svg .= "  <rect x='" . ($centerX - $armLength) . "' y='" . ($centerY - $armWidth) . "' width='" . ($armLength * 2) . "' height='" . ($armWidth * 2) . "' fill='{$color}' />\n";
+        
+        // Vertical arm
+        $svg .= "  <rect x='" . ($centerX - $armWidth) . "' y='" . ($centerY - $armLength) . "' width='" . ($armWidth * 2) . "' height='" . ($armLength * 2) . "' fill='{$color}' />\n";
+        
+        // Central diamond
+        $diamondSize = $size * 0.3;
+        $points = [
+            [$centerX, $centerY - $diamondSize],
+            [$centerX + $diamondSize, $centerY],
+            [$centerX, $centerY + $diamondSize],
+            [$centerX - $diamondSize, $centerY]
+        ];
+        $pointsStr = implode(' ', array_map(function($p) { return $p[0] . ',' . $p[1]; }, $points));
+        $svg .= "  <polygon points='{$pointsStr}' fill='{$color}' opacity='0.8' />\n";
+        
+        return $svg;
+    }
+    
+    /**
+     * Draw crystal facet
+     */
+    protected function drawCrystalFacet($centerX, $centerY, $innerRadius, $outerRadius, $angle, $color)
+    {
+        $radAngle = deg2rad($angle);
+        $facetWidth = deg2rad(15); // 15 degree facet
+        
+        // Calculate facet points
+        $angle1 = $radAngle - $facetWidth;
+        $angle2 = $radAngle + $facetWidth;
+        
+        $x1Inner = $centerX + cos($angle1) * $innerRadius;
+        $y1Inner = $centerY + sin($angle1) * $innerRadius;
+        $x2Inner = $centerX + cos($angle2) * $innerRadius;
+        $y2Inner = $centerY + sin($angle2) * $innerRadius;
+        
+        $x1Outer = $centerX + cos($angle1) * $outerRadius;
+        $y1Outer = $centerY + sin($angle1) * $outerRadius;
+        $x2Outer = $centerX + cos($angle2) * $outerRadius;
+        $y2Outer = $centerY + sin($angle2) * $outerRadius;
+        
+        $points = "{$x1Inner},{$y1Inner} {$x1Outer},{$y1Outer} {$x2Outer},{$y2Outer} {$x2Inner},{$y2Inner}";
+        return "  <polygon points='{$points}' fill='{$color}' opacity='0.7' stroke='#fff' stroke-width='1' />\n";
+    }
+    
 }
