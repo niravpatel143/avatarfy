@@ -26,6 +26,55 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Advanced Generation Options
+    |--------------------------------------------------------------------------
+    |
+    | Advanced options for fine-tuning avatar generation
+    |
+    */
+    'seed' => null, // Use specific seed for deterministic generation
+    'flip' => true, // Flip avatar horizontally
+    'rotate' => 34, // Rotate avatar (0-360 degrees)
+    'scale' => 100, // Scale factor (50-200%)
+    'radius' => 0, // Border radius (0-50px)
+    'clip' => true, // Clip avatar to circular shape
+    'randomize_ids' => true, // Randomize SVG element IDs to avoid conflicts
+    'translate_x' => 0, // Horizontal translation (-100 to 100)
+    'translate_y' => 0, // Vertical translation (-100 to 100)
+
+    /*
+    |--------------------------------------------------------------------------
+    | Background Options
+    |--------------------------------------------------------------------------
+    |
+    | Configure background appearance and gradients
+    |
+    */
+    'background_type' => 'solid', // 'solid', 'gradient_linear', 'gradient_radial', 'transparent'
+    'background_rotation' => [0, 360], // Gradient rotation range
+    'background_colors' => [
+        'transparent',
+        'f0f0f0',
+        'e0e0e0',
+        'd0d0d0',
+        'c0c0c0',
+        'b0b0b0',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export Formats
+    |--------------------------------------------------------------------------
+    |
+    | Supported export formats and settings
+    |
+    */
+    'formats' => ['svg', 'png', 'jpg', 'webp'],
+    'sizes' => [64, 128, 256, 512],
+    'quality' => 90, // For raster formats
+
+    /*
+    |--------------------------------------------------------------------------
     | Age Groups
     |--------------------------------------------------------------------------
     |

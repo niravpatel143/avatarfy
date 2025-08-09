@@ -15,6 +15,8 @@ namespace Avatarfy\Services;
 class SimpleSvgAvatarService
 {
     protected $config;
+    protected $seed;
+    protected $transforms = [];
     
     protected $skinTones = [
         'light' => '#FFDBAC',
@@ -166,6 +168,16 @@ class SimpleSvgAvatarService
         $this->ensureDirectoryExists($this->config['storage_path']);
     }
     
+    /**
+     * Get the configuration array
+     * 
+     * @return array The configuration
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+    
     public function generateDynamicAvatar($userId, $expression = null, $skinTone = null, $extraParams = [])
     {
         // If old parameters are passed, handle them
@@ -294,7 +306,13 @@ class SimpleSvgAvatarService
             'expression' => null,
             'skinTone' => null,
             'eyeColor' => null,
-            'hasGlasses' => null
+            'hasGlasses' => null,
+            // New transform options
+            'flip' => false,
+            'rotate' => 0,
+            'scale' => 100,
+            'radius' => 0,
+            'clip' => false
         ];
         
         $options = array_merge($defaults, $options);
@@ -322,13 +340,136 @@ class SimpleSvgAvatarService
             $attributes['hasGlasses'] = $options['hasGlasses'];
         }
         
-        // Create SVG content
+        // Store transform options
+        $this->transforms = [
+            'flip' => $options['flip'],
+            'rotate' => $options['rotate'],
+            'scale' => $options['scale'],
+            'radius' => $options['radius'],
+            'clip' => $options['clip']
+        ];
+        
+        // Create SVG content with transforms
         $svgContent = $this->buildFaceOnlySvgString($attributes);
         
         // Save with custom filename
         $filename = "custom_avatar_{$userId}.svg";
         $outputPath = $this->config['storage_path'] . '/' . $filename;
         file_put_contents($outputPath, $svgContent);
+        
+        return $outputPath;
+    }
+    
+    /**
+     * Generate avatar from seed for deterministic results
+     * Same seed will always generate the same avatar
+     */
+    public function generateFromSeed($seed, array $options = [])
+    {
+        $this->seed = $seed;
+        
+        // Use seed to generate consistent attributes
+        $hash = crc32($seed);
+        
+        $defaults = [
+            'age' => $this->generateSeededValue($seed . 'age', [18, 25, 30, 35, 40, 45, 50, 60]),
+            'gender' => $this->generateSeededValue($seed . 'gender', ['male', 'female']),
+            'country' => $this->generateSeededValue($seed . 'country', ['USA', 'India', 'China', 'UK', 'Germany', 'Japan', 'Brazil', 'Nigeria']),
+            'personality' => $this->generateSeededValue($seed . 'personality', ['confident', 'energetic', 'professional', 'cheerful', 'creative', 'stylish']),
+            'expression' => $this->generateSeededValue($seed . 'expression', ['happy', 'neutral', 'wink', 'surprised', 'laughing']),
+            'flip' => false,
+            'rotate' => 0,
+            'scale' => 100
+        ];
+        
+        $options = array_merge($defaults, $options);
+        
+        // Use the existing generateCustomAvatar with seeded defaults
+        return $this->generateCustomAvatar($seed, $options);
+    }
+    
+    /**
+     * Generate batch avatars for multiple users/seeds
+     */
+    public function generateBatch(array $userIds, array $globalOptions = [])
+    {
+        $results = [];
+        
+        foreach ($userIds as $userId) {
+            try {
+                $results[$userId] = $this->generateAvatar($userId, 
+                    $globalOptions['age'] ?? null,
+                    $globalOptions['gender'] ?? null,
+                    $globalOptions['country'] ?? null,
+                    $globalOptions['personality'] ?? null,
+                    $globalOptions['expression'] ?? null
+                );
+            } catch (Exception $e) {
+                $results[$userId] = ['error' => $e->getMessage()];
+            }
+        }
+        
+        return $results;
+    }
+    
+    /**
+     * Generate Identicon-style avatar (geometric pattern)
+     */
+    public function generateIdenticon($seed, array $options = [])
+    {
+        $this->seed = $seed;
+        $hash = crc32($seed);
+        
+        $width = $options['size'] ?? $this->config['width'] ?? 256;
+        $height = $width; // Force square
+        
+        $svg = "<?xml version='1.0' encoding='UTF-8'?>\n";
+        $svg .= "<svg width='{$width}' height='{$height}' xmlns='http://www.w3.org/2000/svg'>\n";
+        
+        // Background
+        $bgColor = $this->generateSeededColor($seed . 'bg');
+        $svg .= "  <rect width='100%' height='100%' fill='{$bgColor}' />\n";
+        
+        // Generate 5x5 grid pattern
+        $cellSize = $width / 5;
+        $color = $this->generateSeededColor($seed);
+        
+        // Generate pattern using seed
+        $pattern = [];
+        for ($i = 0; $i < 15; $i++) { // Only generate half + middle column
+            $pattern[] = (abs(crc32($seed . $i)) % 2) === 0;
+        }
+        
+        $index = 0;
+        for ($row = 0; $row < 5; $row++) {
+            for ($col = 0; $col < 5; $col++) {
+                $shouldFill = false;
+                
+                if ($col < 2) {
+                    // Left side
+                    $shouldFill = $pattern[$row * 2 + $col];
+                } elseif ($col === 2) {
+                    // Middle column
+                    $shouldFill = $pattern[10 + $row];
+                } else {
+                    // Right side (mirror left)
+                    $shouldFill = $pattern[$row * 2 + (4 - $col)];
+                }
+                
+                if ($shouldFill) {
+                    $x = $col * $cellSize;
+                    $y = $row * $cellSize;
+                    $svg .= "  <rect x='{$x}' y='{$y}' width='{$cellSize}' height='{$cellSize}' fill='{$color}' />\n";
+                }
+            }
+        }
+        
+        $svg .= "</svg>";
+        
+        // Save identicon
+        $filename = "identicon_{$seed}.svg";
+        $outputPath = $this->config['storage_path'] . '/' . $filename;
+        file_put_contents($outputPath, $svg);
         
         return $outputPath;
     }
@@ -359,6 +500,9 @@ class SimpleSvgAvatarService
         }
         
         $svg .= "</svg>";
+        
+        // Apply transforms if they exist
+        $svg = $this->applyTransforms($svg);
         
         return $svg;
     }
@@ -1205,5 +1349,157 @@ class SimpleSvgAvatarService
         }
         
         return $colors[$hash % count($colors)];
+    }
+    
+    // === SEEDED GENERATION HELPER METHODS ===
+    
+    /**
+     * Generate seeded value from array of options
+     */
+    protected function generateSeededValue($seed, array $options)
+    {
+        $hash = crc32($seed);
+        return $options[abs($hash) % count($options)];
+    }
+    
+    /**
+     * Generate seeded color from seed
+     */
+    protected function generateSeededColor($seed)
+    {
+        $colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
+            '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
+            '#10AC84', '#EE5A24', '#0652DD', '#9C88FF', '#FFC312',
+            '#2C2C54', '#40407A', '#706FD3', '#F97F51', '#F8B500'
+        ];
+        
+        return $this->generateSeededValue($seed, $colors);
+    }
+    
+    /**
+     * Apply transforms to SVG based on config and options
+     */
+    protected function applyTransforms($svg, $transforms = null)
+    {
+        if (!$transforms) {
+            $transforms = $this->transforms;
+        }
+        
+        // Merge with config defaults if available
+        if (isset($this->config['flip'])) {
+            $transforms['flip'] = $transforms['flip'] ?? $this->config['flip'];
+        }
+        if (isset($this->config['rotate'])) {
+            $transforms['rotate'] = $transforms['rotate'] ?? $this->config['rotate'];
+        }
+        if (isset($this->config['scale'])) {
+            $transforms['scale'] = $transforms['scale'] ?? $this->config['scale'];
+        }
+        if (isset($this->config['radius'])) {
+            $transforms['radius'] = $transforms['radius'] ?? $this->config['radius'];
+        }
+        if (isset($this->config['clip'])) {
+            $transforms['clip'] = $transforms['clip'] ?? $this->config['clip'];
+        }
+        if (isset($this->config['translate_x'])) {
+            $transforms['translate_x'] = $transforms['translate_x'] ?? $this->config['translate_x'];
+        }
+        if (isset($this->config['translate_y'])) {
+            $transforms['translate_y'] = $transforms['translate_y'] ?? $this->config['translate_y'];
+        }
+        
+        // Skip if no transforms needed
+        if (empty($transforms) || (!$transforms['flip'] && !$transforms['rotate'] && $transforms['scale'] == 100 && !$transforms['clip'])) {
+            return $svg;
+        }
+        
+        $width = $this->config['width'] ?? 256;
+        $height = $this->config['height'] ?? 256;
+        $centerX = $width / 2;
+        $centerY = $height / 2;
+        
+        // Build transform string
+        $transformParts = [];
+        
+        // Translation (apply first)
+        if (isset($transforms['translate_x']) && $transforms['translate_x'] != 0 || 
+            isset($transforms['translate_y']) && $transforms['translate_y'] != 0) {
+            $tx = $transforms['translate_x'] ?? 0;
+            $ty = $transforms['translate_y'] ?? 0;
+            $transformParts[] = "translate($tx,$ty)";
+        }
+        
+        // Rotation (around center)
+        if (isset($transforms['rotate']) && $transforms['rotate'] != 0) {
+            $angle = $transforms['rotate'];
+            $transformParts[] = "rotate($angle $centerX $centerY)";
+        }
+        
+        // Scale (from center)
+        if (isset($transforms['scale']) && $transforms['scale'] != 100) {
+            $scale = $transforms['scale'] / 100;
+            $transformParts[] = "scale($scale)";
+            // Adjust translation to keep centered
+            $translateX = $centerX * (1 - $scale);
+            $translateY = $centerY * (1 - $scale);
+            $transformParts[] = "translate($translateX,$translateY)";
+        }
+        
+        // Flip horizontally
+        if (isset($transforms['flip']) && $transforms['flip']) {
+            $transformParts[] = "scale(-1,1)";
+            $transformParts[] = "translate(-$width,0)";
+        }
+        
+        // Apply transforms by wrapping content
+        if (!empty($transformParts)) {
+            $transformString = implode(' ', $transformParts);
+            
+            // Extract the content between <svg> tags
+            $pattern = '/(<svg[^>]*>)(.*?)(<\/svg>)/s';
+            if (preg_match($pattern, $svg, $matches)) {
+                $svgOpen = $matches[1];
+                $svgContent = $matches[2];
+                $svgClose = $matches[3];
+                
+                // Wrap content in transform group
+                $transformedContent = "  <g transform=\"$transformString\">\n" . $svgContent . "  </g>\n";
+                $svg = $svgOpen . "\n" . $transformedContent . $svgClose;
+            }
+        }
+        
+        // Apply clipping
+        if (isset($transforms['clip']) && $transforms['clip']) {
+            $clipId = 'clip-' . uniqid();
+            $clipRadius = min($width, $height) / 2 - 10;
+            
+            $pattern = '/(<svg[^>]*>)(.*?)(<\/svg>)/s';
+            if (preg_match($pattern, $svg, $matches)) {
+                $svgOpen = $matches[1];
+                $svgContent = $matches[2];
+                $svgClose = $matches[3];
+                
+                // Add clipPath definition
+                $clipDef = "  <defs>\n    <clipPath id=\"$clipId\">\n      <circle cx=\"$centerX\" cy=\"$centerY\" r=\"$clipRadius\" />\n    </clipPath>\n  </defs>\n";
+                
+                // Apply clip-path to all content
+                $clippedContent = "  <g clip-path=\"url(#$clipId)\">\n" . $svgContent . "  </g>\n";
+                
+                $svg = $svgOpen . "\n" . $clipDef . $clippedContent . $svgClose;
+            }
+        }
+        
+        // Apply border radius by modifying the background rect
+        if (isset($transforms['radius']) && $transforms['radius'] > 0) {
+            $radius = $transforms['radius'];
+            $svg = preg_replace(
+                '/<rect width=["\']100%["\'] height=["\']100%["\']([^>]*?)\s*\/>/',
+                "<rect width=\"100%\" height=\"100%\" rx=\"$radius\" ry=\"$radius\"$1 />",
+                $svg
+            );
+        }
+        
+        return $svg;
     }
 }

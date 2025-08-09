@@ -46,6 +46,7 @@ A comprehensive Laravel package for generating culturally-aware SVG avatars with
 - **⚡ 6 Personalities**: Confident, Energetic, Professional, Cheerful, Creative, Stylish
 - **👤 Gender Aware**: Male/female specific traits (eyebrows, facial structure)
 - **📧 Email Integration**: Smart avatar generation from email addresses with initials
+- **🎨 SVG Transforms**: Flip, rotate, scale, border radius, circular clipping
 
 ### 🛠️ **Technical Features**
 - **⚡ Zero Dependencies**: Pure PHP implementation - no external libraries required
@@ -176,6 +177,342 @@ $avatarPath = AvatarGenerator::generateCustomAvatar('user456', [
     'expression' => 'wink'
 ]);
 ```
+
+## 🎨 SVG Transform System - NEW!
+
+Avaterfy now includes a powerful SVG transform system that lets you apply visual effects to your generated avatars!
+
+### 🔧 Available Transform Options
+
+| Transform | Description | Example Value | Visual Effect |
+|-----------|-------------|---------------|---------------|
+| **`flip`** | Horizontal flip | `true` | Mirror the avatar horizontally |
+| **`rotate`** | Rotation in degrees | `45` | Rotate avatar clockwise |
+| **`scale`** | Scale percentage | `120` | Make avatar 120% larger |
+| **`radius`** | Border radius in pixels | `20` | Rounded corners on background |
+| **`clip`** | Circular clipping | `true` | Crop avatar to perfect circle |
+| **`translate_x`** | Horizontal offset | `10` | Move avatar horizontally |
+| **`translate_y`** | Vertical offset | `-5` | Move avatar vertically |
+
+### 🎯 Transform Usage Examples
+
+#### Basic Individual Transforms
+```php
+// Horizontally flipped avatar
+$service->generateCustomAvatar('user1', [
+    'expression' => 'happy',
+    'flip' => true
+]);
+
+// Rotated avatar
+$service->generateCustomAvatar('user2', [
+    'expression' => 'wink', 
+    'rotate' => 30  // 30 degrees clockwise
+]);
+
+// Scaled avatar
+$service->generateCustomAvatar('user3', [
+    'expression' => 'laughing',
+    'scale' => 150  // 150% size
+]);
+
+// Circular avatar
+$service->generateCustomAvatar('user4', [
+    'expression' => 'surprised',
+    'clip' => true  // Perfect circle
+]);
+
+// Rounded corners
+$service->generateCustomAvatar('user5', [
+    'expression' => 'neutral',
+    'radius' => 25  // 25px border radius
+]);
+```
+
+#### Combined Transform Effects
+```php
+// Multiple transforms together
+$service->generateCustomAvatar('showcase_user', [
+    'age' => 28,
+    'gender' => 'female',
+    'country' => 'Brazil',
+    'expression' => 'laughing',
+    'skinTone' => 'medium_dark',
+    'hasGlasses' => true,
+    // Transform effects
+    'flip' => true,        // Mirror horizontally
+    'rotate' => 15,        // Slight rotation
+    'scale' => 110,        // 10% larger
+    'radius' => 20,        // Rounded corners
+    'clip' => true         // Circular shape
+]);
+```
+
+#### Dynamic Transform Generation
+```php
+// Random transform showcase
+for ($i = 1; $i <= 5; $i++) {
+    $service->generateCustomAvatar("random_{$i}", [
+        'age' => rand(20, 50),
+        'gender' => ['male', 'female'][rand(0, 1)],
+        'expression' => ['happy', 'wink', 'laughing'][rand(0, 2)],
+        // Dynamic transforms
+        'flip' => (bool)rand(0, 1),
+        'rotate' => rand(-30, 30),
+        'scale' => rand(80, 120),
+        'radius' => rand(0, 25),
+        'clip' => (bool)rand(0, 1)
+    ]);
+}
+```
+
+### 🎪 Transform Combinations
+
+**Popular Transform Combinations:**
+
+```php
+// Profile Picture Style
+'clip' => true,
+'scale' => 95,
+'radius' => 10
+
+// Dynamic Showcase
+'flip' => true,
+'rotate' => 20,
+'scale' => 110
+
+// Elegant Card Style  
+'radius' => 15,
+'scale' => 105,
+'translate_y' => -5
+
+// Playful Style
+'rotate' => rand(-15, 15),
+'scale' => rand(95, 115),
+'flip' => (bool)rand(0, 1)
+```
+
+### ⚡ Generated SVG Transform Code
+
+The system automatically generates optimized SVG transform code:
+
+```xml
+<!-- Example: flip + rotate + scale -->
+<g transform="rotate(15 128 128) scale(1.1) translate(-14.08,-14.08) scale(-1,1) translate(-256,0)">
+  <!-- Avatar content -->
+</g>
+
+<!-- Example: circular clipping -->
+<defs>
+  <clipPath id="clip-unique-id">
+    <circle cx="128" cy="128" r="118" />
+  </clipPath>
+</defs>
+<g clip-path="url(#clip-unique-id)">
+  <!-- Avatar content -->
+</g>
+```
+
+### 🎨 Transform Test Gallery
+
+**Run the transform test to see all effects:**
+```bash
+php test_transforms.php
+```
+
+This generates avatars showcasing:
+- ✅ Individual transform effects
+- ✅ Combined transform combinations  
+- ✅ All expressions with transforms
+- ✅ Random showcase generation
+- ✅ SVG validation and verification
+
+### 🔧 Technical Implementation
+
+Transforms are applied via the `applyTransforms()` method which:
+1. **Validates** all transform parameters
+2. **Combines** multiple transforms efficiently
+3. **Optimizes** SVG transform strings
+4. **Preserves** avatar centering and positioning
+5. **Generates** clean, standards-compliant SVG code
+
+**Transform Order (automatically optimized):**
+1. Translation → 2. Rotation → 3. Scale → 4. Flip → 5. Clipping → 6. Border Radius
+
+## 📚 Complete Usage Guide
+
+### 🚀 1. Basic Avatar Generation
+
+```php
+// Simplest usage - smart defaults
+$avatarPath = $service->generateAvatar('user123');
+
+// With age only
+$avatarPath = $service->generateAvatar('user456', 25);
+
+// With age and gender
+$avatarPath = $service->generateAvatar('user789', 30, 'female');
+```
+
+### 📧 2. Email-Based Avatars
+
+```php
+// Simple email avatar (extracts initials)
+$avatarPath = $service->generateFromEmail('john.doe@company.com');
+// Result: Circular avatar with "JD" initials
+
+// Email avatar with custom options
+$avatarPath = $service->generateFromEmail('sarah@example.com', [
+    'gender' => 'female',
+    'expression' => 'happy',
+    'age' => 28
+]);
+```
+
+### 🎭 3. Expression & Personality Avatars
+
+```php
+// Different expressions
+foreach (['happy', 'wink', 'laughing', 'surprised'] as $expr) {
+    $service->generateAvatar("user_${expr}", 25, 'female', 'USA', 'cheerful', $expr);
+}
+
+// Different personalities
+foreach (['confident', 'energetic', 'professional', 'creative'] as $personality) {
+    $service->generateAvatar("${personality}_user", 30, 'male', 'Germany', $personality);
+}
+```
+
+### 🌍 4. Cultural & Demographic Avatars
+
+```php
+// Country-specific avatars
+$countries = ['USA', 'India', 'Japan', 'Brazil', 'Nigeria'];
+foreach ($countries as $country) {
+    $service->generateAvatar("user_${country}", 25, 'female', $country);
+}
+
+// Age group examples
+$service->generateAvatar('child', 8);     // Child characteristics
+$service->generateAvatar('teen', 16);     // Teen characteristics  
+$service->generateAvatar('adult', 35);    // Adult characteristics
+$service->generateAvatar('senior', 70);   // Senior characteristics
+```
+
+### 🎨 5. Advanced Customization
+
+```php
+// Full customization
+$service->generateCustomAvatar('premium_user', [
+    'age' => 32,
+    'gender' => 'female',
+    'country' => 'Japan',
+    'personality' => 'creative',
+    'expression' => 'wink',
+    'skinTone' => 'light',           // Specific skin tone
+    'eyeColor' => '#2E8B57',         // Custom eye color
+    'hasGlasses' => true,            // Add glasses
+    // Transform effects
+    'flip' => false,
+    'rotate' => 10,
+    'scale' => 105,
+    'radius' => 15,
+    'clip' => false
+]);
+```
+
+### 🎲 6. Deterministic Generation
+
+```php
+// Same seed = same avatar (always)
+$seed = 'github_user_123';
+$avatar1 = $service->generateFromSeed($seed);
+$avatar2 = $service->generateFromSeed($seed);
+// avatar1 and avatar2 are identical
+
+// Seed with custom options
+$service->generateFromSeed('discord_user_456', [
+    'flip' => true,
+    'scale' => 110,
+    'expression' => 'laughing'
+]);
+```
+
+### 🏭 7. Batch Generation
+
+```php
+// Batch generate with same options
+$userIds = ['alice', 'bob', 'charlie', 'diana', 'eve'];
+$results = $service->generateBatch($userIds, [
+    'age' => 25,
+    'country' => 'USA',
+    'personality' => 'cheerful'
+]);
+
+// Process results
+foreach ($results as $userId => $avatarPath) {
+    echo "Avatar for {$userId}: {$avatarPath}\n";
+}
+```
+
+### 🎯 8. Identicon Generation
+
+```php
+// GitHub-style identicons
+$service->generateIdenticon('github_user_123');
+$service->generateIdenticon('stackoverflow_456');
+
+// Custom size identicon
+$service->generateIdenticon('discord_abc', ['size' => 128]);
+```
+
+### 🔄 9. Real-World Laravel Integration
+
+```php
+class UserController extends Controller
+{
+    public function generateUserAvatar(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+        
+        $service = new SimpleSvgAvatarService([
+            'width' => 256,
+            'height' => 256,
+            'storage_path' => storage_path('app/public/avatars')
+        ]);
+        
+        // Generate based on user preferences
+        $avatarPath = $service->generateCustomAvatar($user->username, [
+            'age' => $user->age ?? 25,
+            'gender' => $user->gender ?? 'male',
+            'country' => $user->country ?? 'USA',
+            'expression' => $request->get('expression', 'happy'),
+            // Transform options from request
+            'flip' => $request->boolean('flip'),
+            'rotate' => $request->get('rotate', 0),
+            'scale' => $request->get('scale', 100),
+            'clip' => $request->boolean('circular'),
+            'radius' => $request->get('radius', 0)
+        ]);
+        
+        // Save avatar URL to user
+        $user->avatar_url = asset('storage/avatars/' . basename($avatarPath));
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'avatar_url' => $user->avatar_url
+        ]);
+    }
+    
+    public function generateFromUserEmail($email)
+    {
+        $service = new SimpleSvgAvatarService(config('avatarfy'));
+        $avatarPath = $service->generateFromEmail($email);
+        
+        return asset('storage/avatars/' . basename($avatarPath));
+    }
+}
 
 ## 🧪 Testing & Demo Gallery
 
